@@ -1,5 +1,10 @@
 import * as puppeteer from "puppeteer";
+import * as path from "path";
 import * as fs from "fs";
+
+const sessionsFolder = "sessions";
+const cookiesFile = "cookies.json";
+const cookiesPath = `${sessionsFolder}/${cookiesFile}`;
 
 export const wait = async (ms: number): Promise<any> => {
   console.log(`Waiting for ${ms / 1000}s...`);
@@ -56,10 +61,10 @@ export const saveCookiesToFile = async (
   cookies: puppeteer.Cookie[]
 ): Promise<boolean> => {
   try {
-    validateFileExists("cookies.json");
+    validateCookiesFileExists();
 
     // Writing the cookies to a file as JSON
-    fs.writeFileSync("cookies.json", JSON.stringify(cookies, null, 2));
+    fs.writeFileSync(cookiesPath, JSON.stringify(cookies, null, 2));
 
     // Cookies have been saved successfully
     return true;
@@ -76,9 +81,9 @@ export const loadCookiesFromFile = async (
 ): Promise<boolean> => {
   try {
     // Reading cookies from the specified file
-    validateFileExists("cookies.json");
+    validateCookiesFileExists();
 
-    const cookiesJson = fs.readFileSync("cookies.json", "utf-8");
+    const cookiesJson = fs.readFileSync(cookiesPath, "utf-8");
 
     const cookies = JSON.parse(cookiesJson);
 
@@ -95,6 +100,10 @@ export const loadCookiesFromFile = async (
   }
 };
 
-export const validateFileExists = (path: string): void => {
-  if (!fs.existsSync(path)) fs.writeFileSync(path, "");
+export const validateCookiesFileExists = (): void => {
+  if (!fs.existsSync(sessionsFolder)) fs.mkdirSync(sessionsFolder);
+
+  const destinationPath: string = path.join(sessionsFolder, cookiesFile);
+
+  if (!fs.existsSync(destinationPath)) fs.writeFileSync(destinationPath, "");
 };
