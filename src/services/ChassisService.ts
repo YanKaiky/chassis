@@ -1,5 +1,5 @@
 import * as puppeteer from "puppeteer";
-import { clickButton, hoverFieldsets, typeInField } from "../helpers";
+import { clickButton, hoverFieldsets, typeInField, goToURL } from "../helpers";
 
 class ChassisService {
   async getChassis(chassi: string) {
@@ -26,9 +26,7 @@ class ChassisService {
     /**
      * Access URL to Tr 781 - Consulta situação veículo
      */
-    await page.goto(String(process.env.DETRAN_NET_URL_SNG_T781), {
-      waitUntil: "networkidle2",
-    });
+    await goToURL(process.env.DETRAN_NET_URL_SNG_T781, page);
 
     /**
      * Type in field Chassis
@@ -55,9 +53,7 @@ class ChassisService {
       password: String(process.env.DETRAN_NET_PASSWORD),
     });
 
-    await page.goto(String(process.env.DETRAN_NET_URL), {
-      waitUntil: "networkidle2",
-    });
+    await goToURL(process.env.DETRAN_NET_URL, page);
 
     return page;
   }

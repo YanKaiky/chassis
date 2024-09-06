@@ -6,6 +6,17 @@ export const wait = async (ms: number): Promise<any> => {
   return new Promise((res: any) => setTimeout(res, ms));
 };
 
+export const goToURL = async (
+  url: string | never | unknown,
+  page: puppeteer.Page
+): Promise<puppeteer.Page> => {
+  await page.goto(String(url), {
+    waitUntil: "networkidle2",
+  });
+
+  return page;
+};
+
 export const clickButton = async (
   selector: string,
   page: puppeteer.Page
