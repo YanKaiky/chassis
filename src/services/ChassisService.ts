@@ -1,20 +1,72 @@
 import * as puppeteer from "puppeteer";
 import {
   clickButton,
-  hoverFieldsets,
-  typeInField,
   goToURL,
+  hoverFieldsets,
   loadCookiesFromFile,
   saveCookiesToFile,
+  typeInField,
 } from "../helpers";
 
 class ChassisService {
   async getChassis(chassi: string) {
+    const browser = await puppeteer.launch();
+
     /**
      * Start Browser
      */
-    const page = await this.openBrowser();
+    const page = await this.openBrowser(browser);
 
+    await this.accessVehicleStatus(chassi, page);
+
+    const data = await this.extractDataPage(page);
+
+    await browser.close();
+
+    return data;
+  }
+
+  private async openBrowser(browser: puppeteer.Browser) {
+    const page = await browser.newPage();
+
+    await page.setRequestInterception(true);
+
+    page.on("console", (msg) => console.log(msg.text()));
+
+    page.on("request", async (request) => {
+      const url = request.url();
+
+      if (url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/")) {
+        await page.deleteCookie();
+      }
+
+      if (
+        url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/Login")
+      ) {
+        const cookies = await page.cookies();
+
+        saveCookiesToFile(cookies);
+      }
+
+      request.continue();
+    });
+
+    await page.authenticate({
+      username: String(process.env.DETRAN_NET_CPF),
+      password: String(process.env.DETRAN_NET_PASSWORD),
+    });
+
+    loadCookiesFromFile(page);
+
+    await goToURL(process.env.DETRAN_NET_URL, page);
+
+    return page;
+  }
+
+  private async accessVehicleStatus(
+    chassi: string,
+    page: puppeteer.Page
+  ): Promise<void> {
     /**
      * Hover Menu - CAR Icon
      */
@@ -44,53 +96,43 @@ class ChassisService {
      * Click search Chassi - Button Consultar
      */
     await clickButton("#btn_C", page);
-
-    return { message: "OK" };
   }
 
-  private async openBrowser() {
-    const browser = await puppeteer.launch({
-      headless: false,
-    });
+  private async extractDataPage(page: puppeteer.Page): Promise<object> {
+    await page.waitForSelector("#form1 > div:nth-child(5) > table");
 
-    const page = await browser.newPage();
+    let document: any;
 
-    await page.setRequestInterception(true);
+    const data = await page.evaluate(() => {
+      const row = {};
+      const table1 = document.querySelector(
+        "#form1 > div:nth-child(5) > table"
+      );
 
-    page.on("console", (msg) => console.log(msg.text()));
+      for (let i = 1; i < table1.rows.length; i++) {
+        const objCells = table1.rows.item(i).cells;
 
-    page.on("request", async (request) => {
-      const url = request.url();
+        const values = [];
 
-      if (url.includes("https://detrannet.detran.ma.gov.br")) {
-        console.log(url);
+        for (let j = 0; j < objCells.length; j++) {
+          const text = objCells.item(j).innerHTML;
+
+          values.push(text.trim());
+        }
+
+        const data = {
+          chassis: values[0],
+          vehicle_status: values[1],
+          electronic_signature: values[2],
+        };
+
+        Object.assign(row, data);
       }
 
-      if (url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/")) {
-        await page.deleteCookie();
-      }
-
-      if (
-        url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/Login")
-      ) {
-        const cookies = await page.cookies();
-
-        saveCookiesToFile(cookies);
-      }
-
-      request.continue();
+      return row;
     });
 
-    await page.authenticate({
-      username: String(process.env.DETRAN_NET_CPF),
-      password: String(process.env.DETRAN_NET_PASSWORD),
-    });
-
-    loadCookiesFromFile(page);
-
-    await goToURL(process.env.DETRAN_NET_URL, page);
-
-    return page;
+    return data;
   }
 }
 
