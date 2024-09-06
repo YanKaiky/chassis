@@ -1,5 +1,12 @@
 import * as puppeteer from "puppeteer";
-import { clickButton, hoverFieldsets, typeInField, goToURL } from "../helpers";
+import {
+  clickButton,
+  hoverFieldsets,
+  typeInField,
+  goToURL,
+  loadCookiesFromFile,
+  saveCookiesToFile,
+} from "../helpers";
 
 class ChassisService {
   async getChassis(chassi: string) {
@@ -48,10 +55,38 @@ class ChassisService {
 
     const page = await browser.newPage();
 
+    await page.setRequestInterception(true);
+
+    page.on("console", (msg) => console.log(msg.text()));
+
+    page.on("request", async (request) => {
+      const url = request.url();
+
+      if (url.includes("https://detrannet.detran.ma.gov.br")) {
+        console.log(url);
+      }
+
+      if (url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/")) {
+        await page.deleteCookie();
+      }
+
+      if (
+        url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/Login")
+      ) {
+        const cookies = await page.cookies();
+
+        saveCookiesToFile(cookies);
+      }
+
+      request.continue();
+    });
+
     await page.authenticate({
       username: String(process.env.DETRAN_NET_CPF),
       password: String(process.env.DETRAN_NET_PASSWORD),
     });
+
+    loadCookiesFromFile(page);
 
     await goToURL(process.env.DETRAN_NET_URL, page);
 
