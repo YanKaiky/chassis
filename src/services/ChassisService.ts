@@ -99,14 +99,28 @@ class ChassisService {
   }
 
   private async extractDataPage(page: puppeteer.Page): Promise<object> {
-    await page.waitForSelector("#form1 > div:nth-child(5) > table");
+    await page.waitForSelector(
+      "#form1 > div:nth-child(5) > table > tbody > tr > td:nth-child(1)"
+    );
 
     let document: any;
 
     const data = await page.evaluate(() => {
-      const row = {};
+      const splitted = document
+        .querySelector(
+          "#form1 > div:nth-child(5) > table > tbody > tr > td:nth-child(1)"
+        )
+        .innerHTML.trim()
+        .split(" ");
+
+      const chassi = `${splitted.shift()} ${splitted.pop()}`;
+
+      const row = {
+        chassis_full_information: chassi,
+      };
+
       const table1 = document.querySelector(
-        "#form1 > div:nth-child(5) > table"
+        "#form1 > div:nth-child(6) > table"
       );
 
       for (let i = 1; i < table1.rows.length; i++) {
@@ -115,18 +129,21 @@ class ChassisService {
         const values = [];
 
         for (let j = 0; j < objCells.length; j++) {
-          const text = objCells.item(j).innerHTML;
+          const text = objCells.item(j).innerHTML.trim();
 
-          values.push(text.trim());
+          const labelMatch = text.match(/<div[^>]*>(.*?)<\/div>/);
+          const label = labelMatch ? labelMatch[1].trim() : "";
+
+          // Remover tags HTML e capturar o valor restante
+          const value = text
+            .replace(/<[^>]*>/g, "")
+            .replace(label, "")
+            .trim();
+
+          console.log(`${label.toUpperCase()} - ${value}`);
+
+          values.push(text);
         }
-
-        const data = {
-          chassis: values[0],
-          vehicle_status: values[1],
-          electronic_signature: values[2],
-        };
-
-        Object.assign(row, data);
       }
 
       return row;

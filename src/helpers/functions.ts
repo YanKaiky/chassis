@@ -107,3 +107,17 @@ export const validateCookiesFileExists = (): void => {
 
   if (!fs.existsSync(destinationPath)) fs.writeFileSync(destinationPath, "");
 };
+
+export const extractValues = (input: string) => {
+  // Extrair o rótulo e o valor separados
+  const labelMatch = input.match(/<div[^>]*>(.*?)<\/div>/);
+  const label = labelMatch ? labelMatch[1].trim() : "";
+
+  // Remover tags HTML e capturar o valor restante
+  const value = input
+    .replace(/<[^>]*>/g, "")
+    .replace(label, "")
+    .trim();
+
+  return [label, value];
+}
