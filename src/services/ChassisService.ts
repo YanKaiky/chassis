@@ -8,6 +8,31 @@ import {
   typeInField,
 } from "../helpers";
 
+interface IDataPageProps {
+  chassis_information: string;
+  chassis: string;
+  ident_remark: string;
+  manufacture_model: string;
+  state: string;
+  plate: string;
+  plate_state: string;
+  reindeer: string;
+  lien_state: string;
+  vehicle_status: string;
+  status_date: string;
+  financed_document: string;
+  financed_name: string;
+  agent_code: string;
+  agent_document: string;
+  agent_name: string;
+  contract_number: string;
+  contract_date: string;
+  contract_description: string;
+  informant_restriction: string;
+  uf_detran_update?: string | null;
+  electronic_signature: string;
+}
+
 class ChassisService {
   async getChassis(chassi: string) {
     const browser = await puppeteer.launch();
@@ -98,7 +123,7 @@ class ChassisService {
     await clickButton("#btn_C", page);
   }
 
-  private async extractDataPage(page: puppeteer.Page): Promise<object> {
+  private async extractDataPage(page: puppeteer.Page): Promise<IDataPageProps> {
     await page.waitForSelector(
       "#form1 > div:nth-child(5) > table > tbody > tr > td:nth-child(1)"
     );
@@ -116,7 +141,54 @@ class ChassisService {
       const chassi = `${splitted.shift()} ${splitted.pop()}`;
 
       const row: any = {
-        chassis_full_information: chassi,
+        chassis_information: chassi,
+      };
+
+      const definesLabel = (label: string): string => {
+        const text = label.toLowerCase().split(" ").join("_");
+
+        switch (text) {
+          case "chassi":
+            return "chassis";
+          case "ident_remarcação":
+            return "ident_remark";
+          case "fabricação/modelo":
+            return "manufacture_model";
+          case "placa/uf":
+            return "plate_state";
+          case "renavam":
+            return "reindeer";
+          case "gravame/uf":
+            return "lien_state";
+          case "status_do_veículo":
+            return "vehicle_status";
+          case "data_status":
+            return "status_date";
+          case "cnpj/_cppf_financiado":
+            return "financed_document";
+          case "nome_financiado":
+            return "financed_name";
+          case "código_agente":
+            return "agent_code";
+          case "cnpj_agente":
+            return "agent_document";
+          case "nome_agente":
+            return "agent_name";
+          case "número_do_contrato":
+            return "contract_number";
+          case "data_do_contrato":
+            return "contract_date";
+          case "descrição_do_contrato":
+            return "contract_description";
+          case "informante_restrição":
+            return "informant_restriction";
+          case "uf_detran_atualização":
+            return "uf_detran_update";
+          case "assinatura_eletrônica":
+            return "electronic_signature";
+          default:
+            return "chassis";
+        }
       };
 
       const table = document.querySelector("#form1 > div:nth-child(6) > table");
@@ -136,12 +208,18 @@ class ChassisService {
             .trim();
 
           if (label) {
-            row[label.toUpperCase()] = value ? value : null;
+            row[definesLabel(label)] = value ? value : null;
           }
         }
       }
 
-      return row;
+      const newRow = {
+        ...row,
+        plate: row.plate_state.split("/")[0],
+        state: row.plate_state.split("/")[1],
+      };
+
+      return newRow;
     });
 
     return data;
