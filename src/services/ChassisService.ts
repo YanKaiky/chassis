@@ -115,18 +115,14 @@ class ChassisService {
 
       const chassi = `${splitted.shift()} ${splitted.pop()}`;
 
-      const row = {
+      const row: any = {
         chassis_full_information: chassi,
       };
 
-      const table1 = document.querySelector(
-        "#form1 > div:nth-child(6) > table"
-      );
+      const table = document.querySelector("#form1 > div:nth-child(6) > table");
 
-      for (let i = 1; i < table1.rows.length; i++) {
-        const objCells = table1.rows.item(i).cells;
-
-        const values = [];
+      for (let i = 0; i < table.rows.length; i++) {
+        const objCells = table.rows.item(i).cells;
 
         for (let j = 0; j < objCells.length; j++) {
           const text = objCells.item(j).innerHTML.trim();
@@ -134,15 +130,14 @@ class ChassisService {
           const labelMatch = text.match(/<div[^>]*>(.*?)<\/div>/);
           const label = labelMatch ? labelMatch[1].trim() : "";
 
-          // Remover tags HTML e capturar o valor restante
           const value = text
             .replace(/<[^>]*>/g, "")
             .replace(label, "")
             .trim();
 
-          console.log(`${label.toUpperCase()} - ${value}`);
-
-          values.push(text);
+          if (label) {
+            row[label.toUpperCase()] = value ? value : null;
+          }
         }
       }
 
