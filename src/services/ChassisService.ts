@@ -46,6 +46,8 @@ class ChassisService {
 
     const data = await this.extractDataPage(page);
 
+    if (!data) return null;
+
     await browser.close();
 
     return data;
@@ -123,7 +125,9 @@ class ChassisService {
     await clickButton("#btn_C", page);
   }
 
-  private async extractDataPage(page: puppeteer.Page): Promise<IDataPageProps> {
+  private async extractDataPage(
+    page: puppeteer.Page
+  ): Promise<IDataPageProps | null> {
     await page.waitForSelector(
       "#form1 > div:nth-child(5) > table > tbody > tr > td:nth-child(1)"
     );
@@ -131,6 +135,16 @@ class ChassisService {
     let document: any;
 
     const data = await page.evaluate(() => {
+      const renavamLabel = document.querySelector(
+        "#form1 > div:nth-child(6) > table > tbody > tr:nth-child(2) > td:nth-child(2) > div"
+      );
+
+      if (renavamLabel.innerText.trim() === "Renavam") {
+        const renavamNumber = renavamLabel.nextSibling.textContent.trim();
+
+        if (renavamNumber.includes("00000000000")) return null;
+      }
+
       const splitted = document
         .querySelector(
           "#form1 > div:nth-child(5) > table > tbody > tr > td:nth-child(1)"
