@@ -52,6 +52,14 @@ export const openBrowser = async (browser: puppeteer.Browser) => {
   return page;
 };
 
+export const checkLicensePlate = (plate: string): boolean => {
+  return !!plate.match(/^[a-zA-Z]{3}[0-9][A-Za-z0-9][0-9]{2}$/);
+};
+
+export const checkChassis = (chassis: string): boolean => {
+  return !!chassis.match(/^[A-HJ-NPR-Z0-9]{17}$/);
+};
+
 export const goToURL = async (
   url: string | never | unknown,
   page: puppeteer.Page

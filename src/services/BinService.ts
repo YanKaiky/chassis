@@ -5,6 +5,8 @@ import {
   hoverFieldsets,
   openBrowser,
   typeInField,
+  checkChassis,
+  checkLicensePlate,
 } from "../helpers";
 
 export enum BinTypeQuery {
@@ -15,9 +17,11 @@ export enum BinTypeQuery {
 
 class BinService {
   async getBin(key: string, type: string) {
-    const browser = await puppeteer.launch({
-      headless: false,
-    });
+    if (type === "chassis" && !checkChassis(key)) return null;
+
+    if (type === "plate" && !checkLicensePlate(key)) return null;
+
+    const browser = await puppeteer.launch();
 
     /**
      * Start Browser
