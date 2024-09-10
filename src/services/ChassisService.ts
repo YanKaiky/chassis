@@ -33,7 +33,7 @@ interface IDataPageProps {
 }
 
 class ChassisService {
-  async getChassis(chassi: string) {
+  async getChassis(chassi: string): Promise<IDataPageProps | null> {
     const browser = await puppeteer.launch();
 
     /**

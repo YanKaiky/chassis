@@ -15,8 +15,65 @@ export enum BinTypeQuery {
   renavam = "renavam",
 }
 
+interface IDataPageProps {
+  plate: string;
+  state: string;
+  model_year: string;
+  manufacture_year: string;
+  plate_state: string;
+  type: string;
+  species: string;
+  body_type: string;
+  brand_model: string;
+  owner_document_number: string;
+  manufacture_model_year: string;
+  fuel: string;
+  renavam: string;
+  chassis: string;
+  color: string;
+  registration_city: string;
+  seats: string;
+  engine_number: string;
+  gear_number: string | null;
+  number_axles: string;
+  rear_axle_number: string | null;
+  axle_number_auxiliary: string | null;
+  body_number: string | null;
+  power: string;
+  displacement: string;
+  tons_load_capacity: string;
+  tons_total_gross_weight: string;
+  tons_maximum_traction_capacity: string;
+  "1st_restriction": string | null;
+  "2nd_restriction": string | null;
+  "3rd_restriction": string | null;
+  "4th_restriction": string | null;
+  billing_uf: string;
+  billing_document_number: string;
+  last_update_date: string;
+  indicator_renajud_restriction: string;
+  description_pending_issue: string;
+  description_renainf_fine: string;
+  description_sale_communication: string;
+  description_recall_1: string | null;
+  description_recall_2: string | null;
+  description_recall_3: string | null;
+  description_assembler_recall: string;
+  description_vehicle_category_mre: string | null;
+  description_type_document_owner_indicated: string;
+  document_number_ownership_indicated: string | null;
+  date_last_update_mre: string | null;
+  electronic_license_plate: string;
+  description_origin_property: string;
+  rfb_indication: string;
+  tax_restriction_limit: string | null;
+  vaccum_plate_indicator: string;
+  restrictions_indicator: string;
+  pre_registration_date: string;
+}
+
 class BinService {
-  async getBin(key: string, type: string) {
+  async getBin(key: string, type: string): Promise<IDataPageProps | null> {
     if (type === "chassis" && !checkChassis(key)) return null;
 
     if (type === "plate" && !checkLicensePlate(key)) return null;
@@ -76,7 +133,7 @@ class BinService {
   private async extractDataPage(
     page: puppeteer.Page,
     browser: puppeteer.Browser
-  ): Promise<any> {
+  ): Promise<IDataPageProps> {
     await page.waitForSelector(
       "#form1 > div.card > div > table > tbody > tr:nth-child(1) > td:nth-child(1)"
     );

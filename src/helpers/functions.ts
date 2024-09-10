@@ -52,6 +52,18 @@ export const openBrowser = async (browser: puppeteer.Browser) => {
   return page;
 };
 
+export const validateCpfCnpj = (value: string): string | boolean => {
+  const val: string = value.replace(/[^\w\s]/gi, "");
+
+  if (val.length === 11) {
+    return "cpf";
+  } else if (val.length > 11) {
+    return "cnpj";
+  } else {
+    return false;
+  }
+};
+
 export const checkLicensePlate = (plate: string): boolean => {
   return !!plate.match(/^[a-zA-Z]{3}[0-9][A-Za-z0-9][0-9]{2}$/);
 };
