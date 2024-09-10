@@ -1,5 +1,6 @@
 import { Router } from "express";
 import chassis from "./chassis";
+import bin from "./bin";
 
 const router = Router();
 
@@ -12,5 +13,7 @@ router.get("/", (_, response) =>
 );
 
 router.use(chassis);
+
+router.use(bin);
 
 export { router };

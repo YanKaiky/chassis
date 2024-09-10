@@ -12,6 +12,43 @@ export const wait = async (ms: number): Promise<any> => {
   return new Promise((res: any) => setTimeout(res, ms));
 };
 
+export const openBrowser = async (browser: puppeteer.Browser) => {
+  const page = await browser.newPage();
+
+  await page.setRequestInterception(true);
+
+  page.on("console", (msg) => console.log(msg.text()));
+
+  page.on("request", async (request) => {
+    const url = request.url();
+
+    if (url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/")) {
+      await page.deleteCookie();
+    }
+
+    if (
+      url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/Login")
+    ) {
+      const cookies = await page.cookies();
+
+      saveCookiesToFile(cookies);
+    }
+
+    request.continue();
+  });
+
+  await page.authenticate({
+    username: String(process.env.DETRAN_NET_CPF),
+    password: String(process.env.DETRAN_NET_PASSWORD),
+  });
+
+  loadCookiesFromFile(page);
+
+  await goToURL(process.env.DETRAN_NET_URL, page);
+
+  return page;
+};
+
 export const goToURL = async (
   url: string | never | unknown,
   page: puppeteer.Page
@@ -107,4 +144,3 @@ export const validateCookiesFileExists = (): void => {
 
   if (!fs.existsSync(destinationPath)) fs.writeFileSync(destinationPath, "");
 };
-

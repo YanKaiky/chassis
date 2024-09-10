@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import ChassisService from "../services/ChassisService";
-
-type ParsedQs = /*unresolved*/ any;
+import { ParsedQs } from "../helpers/types";
 
 class ChassisController {
   async getChassis(request: Request, response: Response) {

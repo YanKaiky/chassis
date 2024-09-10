@@ -44,11 +44,9 @@ class ChassisService {
 
     await this.accessVehicleStatus(chassi, page);
 
-    const data = await this.extractDataPage(page);
+    const data = await this.extractDataPage(page, browser);
 
     if (!data) return null;
-
-    await browser.close();
 
     return data;
   }
@@ -126,7 +124,8 @@ class ChassisService {
   }
 
   private async extractDataPage(
-    page: puppeteer.Page
+    page: puppeteer.Page,
+    browser: puppeteer.Browser
   ): Promise<IDataPageProps | null> {
     await page.waitForSelector(
       "#form1 > div:nth-child(5) > table > tbody > tr > td:nth-child(1)"
@@ -235,6 +234,8 @@ class ChassisService {
 
       return newRow;
     });
+
+    await browser.close();
 
     return data;
   }
