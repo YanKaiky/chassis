@@ -145,9 +145,9 @@ class ChassisService {
       }
 
       const newRow = {
-        ...row,
         plate: row.plate_state.split("/")[0],
         state: row.plate_state.split("/")[1],
+        ...row,
       };
 
       return newRow;

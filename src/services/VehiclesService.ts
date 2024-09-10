@@ -8,15 +8,24 @@ import {
   validateCpfCnpj,
 } from "../helpers";
 
-interface IDataPageProps {}
+interface IDataPageProps {
+  plate: string;
+  state: string;
+  plate_state: string;
+  chassis: string;
+  brand_model: string;
+  manufacture_year: string;
+  color: string;
+  status: string;
+}
 
 class VehiclesService {
-  async getVehicles(document_number: string): Promise<IDataPageProps | null> {
+  async getVehicles(document_number: string): Promise<IDataPageProps[] | null> {
     const validate = validateCpfCnpj(document_number);
 
     if (!validate) return null;
 
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch();
 
     /**
      * Start Browser
@@ -70,7 +79,7 @@ class VehiclesService {
   private async extractDataPage(
     page: puppeteer.Page,
     browser: puppeteer.Browser
-  ): Promise<IDataPageProps> {
+  ): Promise<IDataPageProps[]> {
     await page.waitForSelector(
       "#form1 > div.table-responsive.mt-3 > table > tbody > tr:nth-child(1) > td:nth-child(1)"
     );
@@ -83,7 +92,7 @@ class VehiclesService {
         "#form1 > div.table-responsive.mt-3 > table"
       );
 
-      const row = [];
+      const rows = [];
 
       for (let i = 1; i < table.rows.length; i++) {
         const objCells = table.rows.item(i).cells;
@@ -103,14 +112,22 @@ class VehiclesService {
             .trim();
 
           if (label) {
-            content[label] = value ? value : null;
+            const name = await window?.definesVehiclesLabel(label);
+
+            content[name] = value ? value : null;
           }
         }
 
-        row.push(content);
+        const newContent = {
+          plate: content.plate_state.split("/")[0],
+          state: content.plate_state.split("/")[1],
+          ...content,
+        };
+
+        rows.push(newContent);
       }
 
-      return row;
+      return rows;
     });
 
     await browser.close();

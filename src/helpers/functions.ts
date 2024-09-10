@@ -17,6 +17,7 @@ export const openBrowser = async (browser: puppeteer.Browser) => {
 
   await page.exposeFunction("definesBinLabel", definesBinLabel);
   await page.exposeFunction("definesChassisLabel", definesChassisLabel);
+  await page.exposeFunction("definesVehiclesLabel", definesVehiclesLabel);
 
   await page.setRequestInterception(true);
 
@@ -250,6 +251,30 @@ export const definesBinLabel = (label: string): string => {
       return "pre_registration_date";
     default:
       return "plate_state";
+  }
+};
+
+export const definesVehiclesLabel = (label: string): string => {
+  const text = label
+    .toString()
+    .replace(/:/g, "")
+    .toLowerCase()
+    .split(" ")
+    .join("_");
+
+  switch (text) {
+    case "placa/uf":
+      return "plate_state";
+    case "marca/modelo":
+      return "brand_model";
+    case "ano_fabricação":
+      return "manufacture_year";
+    case "cor":
+      return "color";
+    case "situação":
+      return "status";
+    default:
+      return "chassis";
   }
 };
 
