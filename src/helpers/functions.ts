@@ -159,7 +159,7 @@ export const definesBinLabel = (label: string): string => {
     case "número_do_cámbio":
       return "gear_number";
     case "quantidade_de_eixos":
-      return "number_of_axles";
+      return "number_axles";
     case "número_do_eixo_traseiro":
       return "rear_axle_number";
     case "número_do_eixo_auxiliar":
@@ -229,7 +229,7 @@ export const definesBinLabel = (label: string): string => {
     case "data_pré-cadastro":
       return "pre_registration_date";
     default:
-      return "placa";
+      return "plate_state";
   }
 };
 

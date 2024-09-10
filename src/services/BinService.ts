@@ -101,13 +101,21 @@ class BinService {
 
           if (label) {
             const name = await window?.definesBinLabel(label);
-            
+
             row[name] = value ? value : null;
           }
         }
       }
 
-      return row;
+      const newRow = {
+        plate: row.plate_state.split("/")[0],
+        state: row.plate_state.split("/")[1].split(" ")[0],
+        model_year: row.manufacture_model_year.split("/")[0],
+        manufacture_year: row.manufacture_model_year.split("/")[1],
+        ...row,
+      };
+
+      return newRow;
     });
 
     await browser.close();
