@@ -73,9 +73,45 @@ class BinService {
     page: puppeteer.Page,
     browser: puppeteer.Browser
   ): Promise<any> {
-    console.log({ message: "Aquii" });
+    await page.waitForSelector(
+      "#form1 > div.card > div > table > tbody > tr:nth-child(1) > td:nth-child(1)"
+    );
+
+    let document: any;
+
+    const data = await page.evaluate(() => {
+      const row: any = {};
+
+      const table = document.querySelector("#form1 > div.card > div > table");
+
+      for (let i = 0; i < table.rows.length; i++) {
+        const objCells = table.rows.item(i).cells;
+
+        for (let j = 0; j < objCells.length; j++) {
+          const text = objCells.item(j).innerHTML.trim();
+
+          const labelMatch = text.match(/<div[^>]*>(.*?)<\/div>/);
+          const label = labelMatch ? labelMatch[1].trim() : "";
+
+          const value = text
+            .replace(/<[^>]*>/g, "")
+            .replace(label, "")
+            .trim();
+
+          if (label) {
+            row[label] = value ? value : null;
+          }
+        }
+      }
+
+      return row;
+    });
 
     await browser.close();
+
+    console.log(data);
+
+    return data;
   }
 
   private async clickSearchButton(
