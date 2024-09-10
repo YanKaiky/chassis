@@ -28,7 +28,7 @@ class BinService {
      */
     const page = await openBrowser(browser);
 
-    await this.accessBinRenavam(key, type, page);
+    await this.accessBinByType(key, type, page);
 
     const data = await this.extractDataPage(page, browser);
 
@@ -37,7 +37,7 @@ class BinService {
     return data;
   }
 
-  private async accessBinRenavam(
+  private async accessBinByType(
     key: string,
     type: string | BinTypeQuery,
     page: puppeteer.Page
