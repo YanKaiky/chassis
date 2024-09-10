@@ -6,6 +6,7 @@ import {
   loadCookiesFromFile,
   saveCookiesToFile,
   typeInField,
+  definesLabel,
 } from "../helpers";
 
 interface IDataPageProps {
@@ -53,6 +54,8 @@ class ChassisService {
 
   private async openBrowser(browser: puppeteer.Browser) {
     const page = await browser.newPage();
+
+    await page.exposeFunction("definesLabel", definesLabel);
 
     await page.setRequestInterception(true);
 
@@ -131,9 +134,10 @@ class ChassisService {
       "#form1 > div:nth-child(5) > table > tbody > tr > td:nth-child(1)"
     );
 
+    let window: any;
     let document: any;
 
-    const data = await page.evaluate(() => {
+    const data = await page.evaluate(async () => {
       const renavamLabel = document.querySelector(
         "#form1 > div:nth-child(6) > table > tbody > tr:nth-child(2) > td:nth-child(2) > div"
       );
@@ -151,57 +155,10 @@ class ChassisService {
         .innerHTML.trim()
         .split(" ");
 
-      const chassi = `${splitted.shift()} ${splitted.pop()}`;
+      const chassis = `${splitted.shift()} ${splitted.pop()}`;
 
       const row: any = {
-        chassis_information: chassi,
-      };
-
-      const definesLabel = (label: string): string => {
-        const text = label.toLowerCase().split(" ").join("_");
-
-        switch (text) {
-          case "chassi":
-            return "chassis";
-          case "ident_remarcação":
-            return "ident_remark";
-          case "fabricação/modelo":
-            return "manufacture_model";
-          case "placa/uf":
-            return "plate_state";
-          case "renavam":
-            return "reindeer";
-          case "gravame/uf":
-            return "lien_state";
-          case "status_do_veículo":
-            return "vehicle_status";
-          case "data_status":
-            return "status_date";
-          case "cnpj/_cppf_financiado":
-            return "financed_document";
-          case "nome_financiado":
-            return "financed_name";
-          case "código_agente":
-            return "agent_code";
-          case "cnpj_agente":
-            return "agent_document";
-          case "nome_agente":
-            return "agent_name";
-          case "número_do_contrato":
-            return "contract_number";
-          case "data_do_contrato":
-            return "contract_date";
-          case "descrição_do_contrato":
-            return "contract_description";
-          case "informante_restrição":
-            return "informant_restriction";
-          case "uf_detran_atualização":
-            return "uf_detran_update";
-          case "assinatura_eletrônica":
-            return "electronic_signature";
-          default:
-            return "chassis";
-        }
+        chassis_information: chassis,
       };
 
       const table = document.querySelector("#form1 > div:nth-child(6) > table");
@@ -221,7 +178,9 @@ class ChassisService {
             .trim();
 
           if (label) {
-            row[definesLabel(label)] = value ? value : null;
+            const name = await window?.definesLabel(label);
+
+            row[name] = value ? value : null;
           }
         }
       }

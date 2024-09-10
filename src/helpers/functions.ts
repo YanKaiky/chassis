@@ -71,6 +71,53 @@ export const clickButton = async (
   return page;
 };
 
+export const definesLabel = (label: string): string => {
+  const text = label.toLowerCase().split(" ").join("_");
+
+  switch (text) {
+    case "chassi":
+      return "chassis";
+    case "ident_remarcação":
+      return "ident_remark";
+    case "fabricação/modelo":
+      return "manufacture_model";
+    case "placa/uf":
+      return "plate_state";
+    case "renavam":
+      return "reindeer";
+    case "gravame/uf":
+      return "lien_state";
+    case "status_do_veículo":
+      return "vehicle_status";
+    case "data_status":
+      return "status_date";
+    case "cnpj/_cppf_financiado":
+      return "financed_document";
+    case "nome_financiado":
+      return "financed_name";
+    case "código_agente":
+      return "agent_code";
+    case "cnpj_agente":
+      return "agent_document";
+    case "nome_agente":
+      return "agent_name";
+    case "número_do_contrato":
+      return "contract_number";
+    case "data_do_contrato":
+      return "contract_date";
+    case "descrição_do_contrato":
+      return "contract_description";
+    case "informante_restrição":
+      return "informant_restriction";
+    case "uf_detran_atualização":
+      return "uf_detran_update";
+    case "assinatura_eletrônica":
+      return "electronic_signature";
+    default:
+      return "chassis";
+  }
+}
+
 export const hoverFieldsets = async (
   selector: string,
   page: puppeteer.Page
