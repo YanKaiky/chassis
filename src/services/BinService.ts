@@ -77,9 +77,10 @@ class BinService {
       "#form1 > div.card > div > table > tbody > tr:nth-child(1) > td:nth-child(1)"
     );
 
+    let window: any;
     let document: any;
 
-    const data = await page.evaluate(() => {
+    const data = await page.evaluate(async () => {
       const row: any = {};
 
       const table = document.querySelector("#form1 > div.card > div > table");
@@ -99,7 +100,9 @@ class BinService {
             .trim();
 
           if (label) {
-            row[label] = value ? value : null;
+            const name = await window?.definesBinLabel(label);
+            
+            row[name] = value ? value : null;
           }
         }
       }
@@ -108,8 +111,6 @@ class BinService {
     });
 
     await browser.close();
-
-    console.log(data);
 
     return data;
   }

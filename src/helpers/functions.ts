@@ -15,6 +15,9 @@ export const wait = async (ms: number): Promise<any> => {
 export const openBrowser = async (browser: puppeteer.Browser) => {
   const page = await browser.newPage();
 
+  await page.exposeFunction("definesBinLabel", definesBinLabel);
+  await page.exposeFunction("definesChassisLabel", definesChassisLabel);
+
   await page.setRequestInterception(true);
 
   page.on("console", (msg) => console.log(msg.text()));
@@ -71,8 +74,8 @@ export const clickButton = async (
   return page;
 };
 
-export const definesLabel = (label: string): string => {
-  const text = label.toLowerCase().split(" ").join("_");
+export const definesChassisLabel = (label: string): string => {
+  const text = label.toString().toLowerCase().split(" ").join("_");
 
   switch (text) {
     case "chassi":
@@ -116,7 +119,119 @@ export const definesLabel = (label: string): string => {
     default:
       return "chassis";
   }
-}
+};
+
+export const definesBinLabel = (label: string): string => {
+  const text = label
+    .toString()
+    .replace(/:/g, "")
+    .toLowerCase()
+    .split(" ")
+    .join("_");
+
+  switch (text) {
+    case "tipo":
+      return "type";
+    case "espécie":
+      return "species";
+    case "tipo_carroceria":
+      return "body_type";
+    case "marca/modelo":
+      return "brand_model";
+    case "cpf/cnpj_do_proprietário":
+      return "owner_document_number";
+    case "ano_de_fabricação/ano_modelo":
+      return "manufacture_model_year";
+    case "combustível":
+      return "fuel";
+    case "renavam":
+      return "renavam";
+    case "chassi":
+      return "chassis";
+    case "cor":
+      return "color";
+    case "município_de_emplacamento":
+      return "registration_city";
+    case "lugares":
+      return "seats";
+    case "número_do_motor":
+      return "engine_number";
+    case "número_do_cámbio":
+      return "gear_number";
+    case "quantidade_de_eixos":
+      return "number_of_axles";
+    case "número_do_eixo_traseiro":
+      return "rear_axle_number";
+    case "número_do_eixo_auxiliar":
+      return "axle_number_auxiliary";
+    case "número_da_carroceria":
+      return "body_number";
+    case "potência":
+      return "power";
+    case "cilindradas":
+      return "displacement";
+    case "capacidade_de_carga_(ton.)":
+      return "tons_load_capacity";
+    case "peso_bruto_total_(ton.)":
+      return "tons_total_gross_weight";
+    case "capacidade_máxima_de_tração_(ton.)":
+      return "tons_maximum_traction_capacity";
+    case "1°_restrição":
+      return "1st_restriction";
+    case "2°_restrição":
+      return "2nd_restriction";
+    case "3°_restrição":
+      return "3rd_restriction";
+    case "4°_restrição":
+      return "4th_restriction";
+    case "uf_faturamento":
+      return "billing_uf";
+    case "cnpj_faturamento":
+      return "billing_cnpj";
+    case "data_ultima_atualizacao":
+      return "last_update_date";
+    case "indicador_restrição_renajud":
+      return "indicator_renajud_restriction";
+    case "descrição_pendência_de_emissão":
+      return "description_pending_issue";
+    case "descrição_multa_renainf":
+      return "description_renainf_fine";
+    case "descrição_comunicação_de_venda":
+      return "description_sale_communication";
+    case "descrição_recall_1":
+      return "description_recall_1";
+    case "descrição_recall_2":
+      return "description_recall_2";
+    case "descrição_recall_3":
+      return "description_recall_3";
+    case "descrição_recall_motadora":
+      return "description_assembler_recall";
+    case "descrição_da_categoria_veiculo_mre":
+      return "description_vehicle_category_mre";
+    case "descrição_tipo_de_documento_proprietario_indicado":
+      return "description_type_document_owner_indicated";
+    case "número_documento_proprietario_indicado":
+      return "document_number_ownership_indicated";
+    case "data_ultima_atualização_mre":
+      return "date_last_update_mre";
+    case "emplacamento_eletronico":
+      return "electronic_license_plate";
+    case "descrição_da_origem_da_propriedade":
+      return "description_origin_property";
+    case "indicação_rfb":
+      return "rfb_indication";
+    case "limite_restrição_tributaria":
+      return "tax_restriction_limit";
+    case "indicador_placa_vaicular":
+      return "vaccum_plate_indicator";
+    case "indicador_de_restrições":
+      return "restrictions_indicator";
+    case "data_pré-cadastro":
+      return "pre_registration_date";
+    default:
+      return "placa";
+  }
+};
 
 export const hoverFieldsets = async (
   selector: string,

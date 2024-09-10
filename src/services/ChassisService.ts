@@ -3,10 +3,8 @@ import {
   clickButton,
   goToURL,
   hoverFieldsets,
-  loadCookiesFromFile,
-  saveCookiesToFile,
   typeInField,
-  definesLabel,
+  openBrowser,
 } from "../helpers";
 
 interface IDataPageProps {
@@ -41,7 +39,7 @@ class ChassisService {
     /**
      * Start Browser
      */
-    const page = await this.openBrowser(browser);
+    const page = await openBrowser(browser);
 
     await this.accessVehicleStatus(chassi, page);
 
@@ -50,45 +48,6 @@ class ChassisService {
     if (!data) return null;
 
     return data;
-  }
-
-  private async openBrowser(browser: puppeteer.Browser) {
-    const page = await browser.newPage();
-
-    await page.exposeFunction("definesLabel", definesLabel);
-
-    await page.setRequestInterception(true);
-
-    page.on("console", (msg) => console.log(msg.text()));
-
-    page.on("request", async (request) => {
-      const url = request.url();
-
-      if (url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/")) {
-        await page.deleteCookie();
-      }
-
-      if (
-        url.includes("https://detrannet.detran.ma.gov.br/ControleAcesso/Login")
-      ) {
-        const cookies = await page.cookies();
-
-        saveCookiesToFile(cookies);
-      }
-
-      request.continue();
-    });
-
-    await page.authenticate({
-      username: String(process.env.DETRAN_NET_CPF),
-      password: String(process.env.DETRAN_NET_PASSWORD),
-    });
-
-    loadCookiesFromFile(page);
-
-    await goToURL(process.env.DETRAN_NET_URL, page);
-
-    return page;
   }
 
   private async accessVehicleStatus(
@@ -178,7 +137,7 @@ class ChassisService {
             .trim();
 
           if (label) {
-            const name = await window?.definesLabel(label);
+            const name = await window?.definesChassisLabel(label);
 
             row[name] = value ? value : null;
           }
