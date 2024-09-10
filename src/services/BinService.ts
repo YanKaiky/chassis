@@ -94,10 +94,15 @@ class BinService {
           const labelMatch = text.match(/<div[^>]*>(.*?)<\/div>/);
           const label = labelMatch ? labelMatch[1].trim() : "";
 
-          const value = text
+          let value: string = text
             .replace(/<[^>]*>/g, "")
+            .replace(/\s+/g, " ")
             .replace(label, "")
             .trim();
+
+          if (value.endsWith("(NACIONAL )")) {
+            value = value.split("(NACIONAL )").join("(NACIONAL)");
+          }
 
           if (label) {
             const name = await window?.definesBinLabel(label);

@@ -95,13 +95,13 @@ export const definesChassisLabel = (label: string): string => {
     case "data_status":
       return "status_date";
     case "cnpj/_cppf_financiado":
-      return "financed_document";
+      return "financed_document_number";
     case "nome_financiado":
       return "financed_name";
     case "código_agente":
       return "agent_code";
     case "cnpj_agente":
-      return "agent_document";
+      return "agent_document_number";
     case "nome_agente":
       return "agent_name";
     case "número_do_contrato":
@@ -187,7 +187,7 @@ export const definesBinLabel = (label: string): string => {
     case "uf_faturamento":
       return "billing_uf";
     case "cnpj_faturamento":
-      return "billing_cnpj";
+      return "billing_document_number";
     case "data_ultima_atualizacao":
       return "last_update_date";
     case "indicador_restrição_renajud":
