@@ -73,7 +73,10 @@ interface IDataPageProps {
 }
 
 class BinService {
-  async getBin(key: string, type: string): Promise<IDataPageProps | null> {
+  async getBin(
+    key: string,
+    type: string
+  ): Promise<IDataPageProps | boolean | null> {
     if (type === "chassis" && !checkChassis(key)) return null;
 
     if (type === "plate" && !checkLicensePlate(key)) return null;
@@ -88,8 +91,6 @@ class BinService {
     await this.accessBinByType(key, type, page);
 
     const data = await this.extractDataPage(page, browser);
-
-    if (!data) return null;
 
     return data;
   }
@@ -133,7 +134,16 @@ class BinService {
   private async extractDataPage(
     page: puppeteer.Page,
     browser: puppeteer.Browser
-  ): Promise<IDataPageProps> {
+  ): Promise<IDataPageProps | boolean | null> {
+    try {
+      await page.waitForSelector(
+        "#form1 > div.alert.alert-danger.alert-dismissible.show",
+        { timeout: 3000 }
+      );
+
+      return false;
+    } catch (error) {}
+
     await page.waitForSelector(
       "#form1 > div.card > div > table > tbody > tr:nth-child(1) > td:nth-child(1)"
     );

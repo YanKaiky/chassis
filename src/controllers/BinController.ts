@@ -17,8 +17,12 @@ class BinController {
         String(type ?? BinTypeQuery.plate)
       );
 
-      if (!bin) {
+      if (bin === null) {
         return response.status(400).json({ message: "INVALID_REQUEST" });
+      }
+
+      if (bin === false) {
+        return response.status(200).json({ message: "NO_DATA_FOUND" });
       }
 
       return response.status(200).json(bin);

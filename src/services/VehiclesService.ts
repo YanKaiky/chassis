@@ -25,7 +25,7 @@ class VehiclesService {
 
     if (!validate) return null;
 
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: false });
 
     /**
      * Start Browser
@@ -80,6 +80,15 @@ class VehiclesService {
     page: puppeteer.Page,
     browser: puppeteer.Browser
   ): Promise<IDataPageProps[]> {
+    try {
+      await page.waitForSelector(
+        "#form1 > div.header.sticky-top > div.alert.alert-danger.alert-dismissible.show",
+        { timeout: 3000 }
+      );
+
+      return [];
+    } catch (error) {}
+
     await page.waitForSelector(
       "#form1 > div.table-responsive.mt-3 > table > tbody > tr:nth-child(1) > td:nth-child(1)"
     );
