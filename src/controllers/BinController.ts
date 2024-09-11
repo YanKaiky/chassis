@@ -18,7 +18,7 @@ class BinController {
       );
 
       if (bin === null) {
-        return response.status(400).json({ message: "INVALID_REQUEST" });
+        return response.status(400).json({ message: "INVALID_REQUEST_QUERY" });
       }
 
       if (bin === false) {

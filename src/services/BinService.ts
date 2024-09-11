@@ -81,6 +81,10 @@ class BinService {
 
     if (type === "plate" && !checkLicensePlate(key)) return null;
 
+    if (type === "renavam" && (checkLicensePlate(key) || checkChassis(key))) {
+      return null;
+    }
+
     const browser = await puppeteer.launch();
 
     /**
