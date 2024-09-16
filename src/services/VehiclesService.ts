@@ -80,26 +80,37 @@ class VehiclesService {
     page: puppeteer.Page,
     browser: puppeteer.Browser
   ): Promise<IDataPageProps[]> {
+    console.log("🔎 Searching...");
+
     try {
       await page.waitForSelector(
         "#form1 > div.header.sticky-top > div.alert.alert-danger.alert-dismissible.show",
         { timeout: 3000 }
       );
 
+      console.log("📭 There was no research.");
+
+      await browser.close();
+
       return [];
     } catch (error) {}
 
-    await page.waitForSelector(
-      "#form1 > div.table-responsive.mt-3 > table > tbody > tr:nth-child(1) > td:nth-child(1)"
-    );
+    let selector = "#form1 > div.table-responsive.mt-3 > table";
+
+    try {
+      await page.waitForSelector(
+        "#form1 > div.table-responsive.mt-3 > table > tbody > tr:nth-child(1) > td:nth-child(1)",
+        { timeout: 3000 }
+      );
+    } catch (error) {
+      selector = "#form1 > div.table-responsive > table";
+    }
 
     let window: any;
     let document: any;
 
-    const data = await page.evaluate(async () => {
-      const table = document.querySelector(
-        "#form1 > div.table-responsive.mt-3 > table"
-      );
+    const data = await page.evaluate(async (slctr: string) => {
+      const table = document.querySelector(slctr);
 
       const rows = [];
 
@@ -110,34 +121,62 @@ class VehiclesService {
 
         for (let j = 0; j < objCells.length; j++) {
           const text = objCells.item(j).innerHTML.trim();
+          let label: string = '';
 
-          const labelMatch = text.match(/<div[^>]*>(.*?)<\/div>/);
-          const label = labelMatch ? labelMatch[1].trim() : "";
+          if (slctr === "#form1 > div.table-responsive.mt-3 > table") {
+            const labelMatch = text.match(/<div[^>]*>(.*?)<\/div>/);
 
-          let value: string = text
+            label = labelMatch ? labelMatch[1].trim() : "";
+          } else {
+            switch (j) {
+              case 0:
+                label = "placa";
+                break;
+              case 1:
+                label = "chassis";
+                break;
+              case 2:
+                label = "uf";
+                break;
+              case 3:
+                label = "marca/modelo";
+                break;
+              case 4:
+                label = "ano_fabricação";
+                break;
+              default:
+                break;
+            }
+          }
+
+          const value: string = text
             .replace(/<[^>]*>/g, "")
             .replace(/\s+/g, " ")
             .replace(label, "")
             .trim();
 
           if (label) {
-            const name = await window?.definesVehiclesLabel(label);
+            const name = await window?.definesFleetsLabel(label);
 
-            content[name] = value ? value : null;
+            content[name] = !value ? null : value;
           }
         }
 
-        const newContent = {
-          plate: content.plate_state.split("/")[0],
-          state: content.plate_state.split("/")[1],
+        rows.push({
+          licensePlate: content.plate
+            ? content.plate
+            : content?.plateState.split("/")[0],
+          licensePlateState: content.state
+            ? content.state
+            : content?.plateState.split("/")[1],
           ...content,
-        };
-
-        rows.push(newContent);
+        });
       }
 
       return rows;
-    });
+    }, selector);
+
+    console.log("🏁 Researched.");
 
     await browser.close();
 

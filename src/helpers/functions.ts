@@ -263,12 +263,16 @@ export const definesVehiclesLabel = (label: string): string => {
     .join("_");
 
   switch (text) {
+    case "placa":
+      return "plate";
+    case "uf":
+      return "state";
     case "placa/uf":
-      return "plate_state";
+      return "plateState";
     case "marca/modelo":
-      return "brand_model";
+      return "brandModel";
     case "ano_fabricação":
-      return "manufacture_year";
+      return "manufactureYear";
     case "cor":
       return "color";
     case "situação":
